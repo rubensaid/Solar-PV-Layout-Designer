@@ -19,6 +19,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import PVMap from './components/PVMap';
 import { parseKmlKmz, generateLayout } from './utils/geoUtils';
 import type { PerimeterData, LayoutParams, PVLayoutResult } from './types';
+import tokml from 'tokml';
 
 export default function App() {
   const [perimeters, setPerimeters] = useState<PerimeterData[]>([]);
@@ -83,6 +84,48 @@ export default function App() {
         setLoading(false);
       }
     }, 100);
+  };
+
+  const handleExport = () => {
+    if (!layout) return;
+
+    // Convert layout tables to a FeatureCollection
+    const features = layout.tables.map(table => ({
+      type: 'Feature',
+      properties: {
+        id: table.id,
+        rotation: table.rotation,
+        width: table.width,
+        height: table.height,
+      },
+      geometry: {
+        type: 'Polygon',
+        coordinates: [table.corners.map(c => [c[1], c[0]])] // [lon, lat]
+      }
+    }));
+
+    const featureCollection = {
+      type: 'FeatureCollection',
+      features: features
+    };
+
+    // Convert to KML
+    // @ts-ignore
+    const kmlContent = tokml(featureCollection, {
+      name: 'SolarLayout_Export',
+      description: `Layout FV generado: ${(layout.stats.totalPowerKW / 1000).toFixed(2)} MWp`
+    });
+
+    // Create download link
+    const blob = new Blob([kmlContent], { type: 'application/vnd.google-earth.kml+xml' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `SolarLayout_${(layout.stats.totalPowerKW / 1000).toFixed(0)}MWp.kml`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
   };
 
   return (
@@ -276,6 +319,7 @@ export default function App() {
               </div>
               {layout && (
                 <button 
+                  onClick={handleExport}
                   className="flex items-center gap-2 px-4 py-1.5 bg-[#00e676] text-black rounded text-[10px] font-bold uppercase hover:brightness-110 transition-all shadow-lg"
                 >
                   <Download className="w-3 h-3" /> Exportar

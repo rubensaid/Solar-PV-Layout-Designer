@@ -26,6 +26,10 @@ export interface LayoutParams {
   pitch: number; // Distance between rows (meters)
   spacingBetweenTables: number; // Lateral distance between tables in a row (meters)
   azimuth: number; // Orientation (degrees, 0 = North, 180 = South)
+  roadWidthX: number; // Vertical road width between blocks (meters)
+  roadWidthY: number; // Horizontal road width between blocks (meters)
+  tablesPerBlockX: number; // Number of tables per block horizontally
+  tablesPerBlockY: number; // Number of tables per block vertically
 }
 
 export interface PVLayoutResult {

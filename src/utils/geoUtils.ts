@@ -97,7 +97,9 @@ export function generateLayout(
     const [minX, minY, maxX, maxY] = pBbox;
 
     // Iterate through grid in local project coordinates
-    // FOR HSAT (N-S axis): stepX is pitch, stepY is table dimension + spacing
+    // FOR HSAT (N-S axis trackers arranged in E-W rows)
+    // Lateral step (E-W) is pitch
+    // Longitudinal step (N-S) is table length (tableWidth) + spacing
     const stepX = params.pitch;
     const stepY = tableWidth + params.spacingBetweenTables;
 
@@ -108,18 +110,31 @@ export function generateLayout(
     const gridMinY = (minY + maxY) / 2 - diag / 2;
     const gridMaxY = (minY + maxY) / 2 + diag / 2;
 
-    for (let y = gridMinY; y < gridMaxY; y += stepY) {
+    // Grid tracking
+    let yIndex = 0;
+    for (let y = gridMinY; y < gridMaxY; y += stepY, yIndex++) {
       if (currentPowerKW >= params.totalPowerLimitKW) break;
-      for (let x = gridMinX; x < gridMaxX; x += stepX) {
+
+      // Add horizontal road gap if at block boundary
+      const roadOffsetY = Math.floor(yIndex / params.tablesPerBlockY) * params.roadWidthY;
+      const currentYWithRoad = y + roadOffsetY;
+
+      let xIndex = 0;
+      for (let x = gridMinX; x < gridMaxX; x += stepX, xIndex++) {
         if (currentPowerKW >= params.totalPowerLimitKW) break;
 
+        // Add vertical road gap if at block boundary
+        const roadOffsetX = Math.floor(xIndex / params.tablesPerBlockX) * params.roadWidthX;
+        const currentXWithRoad = x + roadOffsetX;
+
         // Define table corners in local coordinates (unrotated)
+        // tableWidth is length (N-S), tableHeight is width (E-W)
         const localCorners: [number, number][] = [
-          [-tableWidth / 2, -tableHeight / 2],
-          [tableWidth / 2, -tableHeight / 2],
-          [tableWidth / 2, tableHeight / 2],
-          [-tableWidth / 2, tableHeight / 2],
-          [-tableWidth / 2, -tableHeight / 2],
+          [-tableHeight / 2, -tableWidth / 2],
+          [tableHeight / 2, -tableWidth / 2],
+          [tableHeight / 2, tableWidth / 2],
+          [-tableHeight / 2, tableWidth / 2],
+          [-tableHeight / 2, -tableWidth / 2],
         ];
 
         // Rotate corners by azimuth (centered at current x, y)
@@ -127,20 +142,18 @@ export function generateLayout(
         const rotatedCorners = localCorners.map(([cx, cy]) => {
           const rx = cx * Math.cos(angleRad) - cy * Math.sin(angleRad);
           const ry = cx * Math.sin(angleRad) + cy * Math.cos(angleRad);
-          return [rx + x, ry + y];
+          return [rx + currentXWithRoad, ry + currentYWithRoad];
         });
 
         const tablePoly = turf.polygon([rotatedCorners]);
         
-        // Use booleanPointInPolygon on corners to be slightly more forgiving than booleanContains
-        // which can fail due to precision issues on large coordinates.
-        // Actually, for professional layouts, we check if center is inside and then all corners
+        // Use booleanPointInPolygon on corners for robustness
         const isInside = rotatedCorners.every(c => turf.booleanPointInPolygon(c, projectedPerimeter));
 
         if (isInside) {
           // Convert back to WGS84
           const wgs84Corners = rotatedCorners.map(c => proj.toWgs84(c as [number, number]));
-          const wgs84Center = proj.toWgs84([x, y]);
+          const wgs84Center = proj.toWgs84([currentXWithRoad, currentYWithRoad]);
 
           tables.push({
             id: `table-${tables.length}`,

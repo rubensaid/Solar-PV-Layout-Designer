@@ -43,6 +43,10 @@ export default function App() {
     pitch: 6.5,
     spacingBetweenTables: 0.4,
     azimuth: 0,
+    roadWidthX: 12.0,
+    roadWidthY: 8.0,
+    tablesPerBlockX: 48,
+    tablesPerBlockY: 8,
   });
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -170,6 +174,50 @@ export default function App() {
                 </div>
               </div>
 
+              <div className="pt-4 border-t border-[#2d3238] space-y-4">
+                <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8]">Sub-campos y Viales</label>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] uppercase font-bold text-[#94a3b8]">Viales N-S (m)</label>
+                    <input
+                      type="number"
+                      value={params.roadWidthX}
+                      onChange={(e) => setParams({ ...params, roadWidthX: Number(e.target.value) })}
+                      className="w-full bg-[#121418] border border-[#2d3238] rounded px-3 py-2 text-sm font-mono focus:border-[#00e676] outline-none transition-colors"
+                    />
+                  </div>
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] uppercase font-bold text-[#94a3b8]">Viales E-W (m)</label>
+                    <input
+                      type="number"
+                      value={params.roadWidthY}
+                      onChange={(e) => setParams({ ...params, roadWidthY: Number(e.target.value) })}
+                      className="w-full bg-[#121418] border border-[#2d3238] rounded px-3 py-2 text-sm font-mono focus:border-[#00e676] outline-none transition-colors"
+                    />
+                  </div>
+                </div>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] uppercase font-bold text-[#94a3b8]">Trackers x Bloque</label>
+                    <input
+                      type="number"
+                      value={params.tablesPerBlockX}
+                      onChange={(e) => setParams({ ...params, tablesPerBlockX: Number(e.target.value) })}
+                      className="w-full bg-[#121418] border border-[#2d3238] rounded px-3 py-2 text-sm font-mono focus:border-[#00e676] outline-none transition-colors"
+                    />
+                  </div>
+                  <div className="space-y-1.5 text-left">
+                    <label className="text-[10px] uppercase font-bold text-[#94a3b8]">Filas x Bloque</label>
+                    <input
+                      type="number"
+                      value={params.tablesPerBlockY}
+                      onChange={(e) => setParams({ ...params, tablesPerBlockY: Number(e.target.value) })}
+                      className="w-full bg-[#121418] border border-[#2d3238] rounded px-3 py-2 text-sm font-mono focus:border-[#00e676] outline-none transition-colors"
+                    />
+                  </div>
+                </div>
+              </div>
+
               <div className="space-y-3 p-4 bg-[#121418] rounded-lg border border-[#2d3238]">
                 <h4 className="text-[10px] font-bold uppercase tracking-tight flex items-center gap-1 text-[#00e676]">
                   <Settings2 className="w-3 h-3" /> Configuración Panel
@@ -177,11 +225,11 @@ export default function App() {
                 <div className="grid grid-cols-1 gap-2">
                   <div className="flex justify-between items-center text-[10px] uppercase">
                     <span className="text-[#94a3b8]">Estandar</span>
-                    <span className="font-mono">650 Wp</span>
+                    <span className="font-mono">655 Wp</span>
                   </div>
                   <div className="flex justify-between items-center text-[10px] uppercase">
                     <span className="text-[#94a3b8]">Malla</span>
-                    <span className="font-mono">2H x 28W</span>
+                    <span className="font-mono">1P x 28W</span>
                   </div>
                 </div>
               </div>

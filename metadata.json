@@ -1,0 +1,6 @@
+{
+  "name": "Generador de Layout Fotovoltaico",
+  "description": "Diseña layouts de plantas solares a partir de perímetros KML/KMZ con paneles de 650Wp.",
+  "requestFramePermissions": [],
+  "majorCapabilities": []
+}

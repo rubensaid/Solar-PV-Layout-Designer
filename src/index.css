@@ -1,0 +1,30 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
+}
+
+:root {
+  --bg: #0f1113;
+  --surface: #1a1d21;
+  --border: #2d3238;
+  --accent: #00e676;
+  --text-main: #e0e0e0;
+  --text-dim: #94a3b8;
+}
+
+body {
+  @apply font-sans antialiased bg-[#0f1113] text-[#e0e0e0];
+}
+
+.leaflet-container {
+  height: 100%;
+  width: 100%;
+  background: #121418 !important;
+}
+
+.viewport-grid {
+  background-image: radial-gradient(#2d3238 1px, transparent 1px);
+  background-size: 30px 30px;
+}

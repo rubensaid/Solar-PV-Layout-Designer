@@ -51,24 +51,38 @@ export default function App() {
   });
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setLoading(true);
     setError(null);
     try {
-      const data = await parseKmlKmz(file);
-      if (data.length === 0) {
-        throw new Error('No se encontraron polígonos válidos en el archivo.');
+      const allNewPerimeters: PerimeterData[] = [];
+      for (const file of Array.from(files)) {
+        const data = await parseKmlKmz(file);
+        allNewPerimeters.push(...data);
       }
-      setPerimeters(data);
-      // Reset layout when new perimeters are loaded
+
+      if (allNewPerimeters.length === 0) {
+        throw new Error('No se encontraron polígonos válidos en los archivos.');
+      }
+      
+      setPerimeters(prev => [...prev, ...allNewPerimeters]);
+      // Reset layout when new perimeters are added
       setLayout(null);
     } catch (err: any) {
-      setError(err.message || 'Error al procesar el archivo.');
+      setError(err.message || 'Error al procesar los archivos.');
     } finally {
       setLoading(false);
+      // Reset input value so same file can be selected again
+      e.target.value = '';
     }
+  };
+
+  const clearPerimeters = () => {
+    setPerimeters([]);
+    setLayout(null);
+    setError(null);
   };
 
   const handleCalculate = () => {
@@ -145,14 +159,25 @@ export default function App() {
         <div className="flex-1 overflow-y-auto p-6 space-y-8">
           {/* Section: Input */}
           <section id="input-section" className="space-y-4">
-            <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8]">
-              Archivos Geográficos
-            </label>
+            <div className="flex items-center justify-between">
+              <label className="text-[11px] font-bold uppercase tracking-widest text-[#94a3b8]">
+                Archivos Geográficos
+              </label>
+              {perimeters.length > 0 && (
+                <button 
+                  onClick={clearPerimeters}
+                  className="text-[9px] uppercase font-bold text-red-400 hover:text-red-300 transition-colors"
+                >
+                  Limpiar
+                </button>
+              )}
+            </div>
             <div className="relative">
               <input
                 type="file"
                 accept=".kml,.kmz"
                 onChange={handleFileUpload}
+                multiple
                 className="hidden"
                 id="kml-upload"
               />

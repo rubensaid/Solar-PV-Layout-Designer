@@ -59,7 +59,7 @@ export default function App() {
     try {
       const allNewPerimeters: PerimeterData[] = [];
       for (const file of Array.from(files)) {
-        const data = await parseKmlKmz(file);
+        const data = await parseKmlKmz(file as File);
         allNewPerimeters.push(...data);
       }
 
@@ -126,7 +126,7 @@ export default function App() {
     // Convert to KML
     // @ts-ignore
     const kmlContent = tokml(featureCollection, {
-      name: 'SolarLayout_Export',
+      name: 'PVLayout_Export',
       description: `Layout FV generado: ${(layout.stats.totalPowerKW / 1000).toFixed(2)} MWp`
     });
 
@@ -135,7 +135,7 @@ export default function App() {
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `SolarLayout_${(layout.stats.totalPowerKW / 1000).toFixed(0)}MWp.kml`;
+    link.download = `PVLayout_${(layout.stats.totalPowerKW / 1000).toFixed(0)}MWp.kml`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -152,7 +152,7 @@ export default function App() {
         <div className="h-[60px] flex items-center px-6 border-b border-[#2d3238]">
           <div className="flex items-center gap-2">
             <Zap className="w-5 h-5 text-[#00e676]" />
-            <h1 className="text-sm font-bold tracking-[0.1em] uppercase">SolarLayout <span className="font-light opacity-50">Pro</span></h1>
+            <h1 className="text-sm font-bold tracking-[0.1em] uppercase">PV Layout <span className="font-light opacity-50">PRO</span></h1>
           </div>
         </div>
 
